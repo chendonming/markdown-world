@@ -1,24 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Editor from './components/Editor'
-import { parseMarkdown } from './utils/markdownParser'
+import { MarkdownWorkerManager } from './utils/markdownWorkerManager'
 
 function App(): React.JSX.Element {
   const [markdownContent, setMarkdownContent] = useState('')
   const [htmlPreview, setHtmlPreview] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const workerManagerRef = useRef<MarkdownWorkerManager | null>(null)
+
+  // 初始化 Worker Manager
+  useEffect(() => {
+    workerManagerRef.current = new MarkdownWorkerManager()
+
+    // 组件卸载时终止 Worker
+    return () => {
+      if (workerManagerRef.current) {
+        workerManagerRef.current.terminate()
+      }
+    }
+  }, [])
 
   const handleContentChange = (content: string): void => {
     setMarkdownContent(content)
   }
 
   const handlePreview = async (): Promise<void> => {
-    if (!markdownContent) {
+    if (!markdownContent || !workerManagerRef.current) {
       return
     }
 
     setIsLoading(true)
     try {
-      const html = await parseMarkdown(markdownContent)
+      // 使用 Worker 解析 Markdown（在后台线程执行）
+      const html = await workerManagerRef.current.parseMarkdown(markdownContent)
       setHtmlPreview(html)
     } catch (error) {
       console.error('解析 Markdown 失败:', error)
