@@ -1,16 +1,3 @@
-// 为 Worker 环境提供基本的 DOM polyfill
-// rehype-sanitize 可能会尝试访问 document
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(globalThis as any).document = {
-  createElement: () => ({}) as any,
-  createElementNS: () => ({}) as any,
-  createTextNode: () => ({}) as any,
-  createComment: () => ({}) as any
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(globalThis as any).window = globalThis
-
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
