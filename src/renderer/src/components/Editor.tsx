@@ -5,11 +5,17 @@ import * as monaco from 'monaco-editor'
 // 配置 Monaco Editor 使用本地版本而非 CDN
 loader.config({ monaco })
 
-function Editor(): React.JSX.Element {
+interface EditorProps {
+  onContentChange?: (content: string) => void
+}
+
+function Editor({ onContentChange }: EditorProps): React.JSX.Element {
   const [value, setValue] = useState('# Hello Monaco Editor\n\n开始输入您的内容...')
 
   const handleEditorChange = (newValue: string | undefined): void => {
-    setValue(newValue || '')
+    const content = newValue || ''
+    setValue(content)
+    onContentChange?.(content)
   }
 
   return (
