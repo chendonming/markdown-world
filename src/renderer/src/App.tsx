@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import Editor from './components/Editor'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import Editor, { EditorRef } from './components/Editor'
 import { MarkdownWorkerManager } from './utils/markdownWorkerManager'
 import { ScrollSyncMapper } from './utils/scrollSyncMapper'
 
@@ -10,6 +10,11 @@ function App(): React.JSX.Element {
   const workerManagerRef = useRef<MarkdownWorkerManager | null>(null)
   const scrollMapperRef = useRef<ScrollSyncMapper | null>(null)
   const previewContainerRef = useRef<HTMLDivElement | null>(null)
+  const editorRef = useRef<EditorRef | null>(null)
+
+  // 标志位，防止循环滚动
+  const isEditorScrollingRef = useRef(false)
+  const isPreviewScrollingRef = useRef(false)
 
   // 初始化 Worker Manager 和 ScrollSyncMapper
   useEffect(() => {
@@ -65,6 +70,64 @@ function App(): React.JSX.Element {
     }
   }, [htmlPreview])
 
+  // 编辑器滚动时同步预览区域
+  const handleEditorScroll = useCallback((visibleLine: number) => {
+    if (isPreviewScrollingRef.current || !scrollMapperRef.current || !previewContainerRef.current) {
+      return
+    }
+
+    const mapping = scrollMapperRef.current.findMappingByLine(visibleLine)
+    if (mapping) {
+      isEditorScrollingRef.current = true
+
+      // 滚动预览区域到对应位置
+      previewContainerRef.current.scrollTo({
+        top: mapping.offsetTop,
+        behavior: 'smooth'
+      })
+
+      // 延迟清除标志位
+      setTimeout(() => {
+        isEditorScrollingRef.current = false
+      }, 150)
+    }
+  }, [])
+
+  // 预览区域滚动时同步编辑器
+  const handlePreviewScroll = useCallback(() => {
+    if (
+      isEditorScrollingRef.current ||
+      !scrollMapperRef.current ||
+      !previewContainerRef.current ||
+      !editorRef.current
+    ) {
+      return
+    }
+
+    const scrollTop = previewContainerRef.current.scrollTop
+    const line = scrollMapperRef.current.findLineByScrollTop(scrollTop)
+
+    isPreviewScrollingRef.current = true
+    editorRef.current.scrollToLine(line)
+
+    // 延迟清除标志位
+    setTimeout(() => {
+      isPreviewScrollingRef.current = false
+    }, 150)
+  }, [])
+
+  // 监听预览区域滚动事件
+  useEffect(() => {
+    const previewContainer = previewContainerRef.current
+    if (previewContainer) {
+      previewContainer.addEventListener('scroll', handlePreviewScroll)
+      return () => {
+        previewContainer.removeEventListener('scroll', handlePreviewScroll)
+      }
+    }
+    return undefined
+  }, [handlePreviewScroll, htmlPreview])
+
   return (
     <div
       style={{
@@ -100,7 +163,11 @@ function App(): React.JSX.Element {
         {/* 编辑器区域 */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{ marginTop: 0, marginBottom: '10px' }}>编辑器</h3>
-          <Editor onContentChange={handleContentChange} />
+          <Editor
+            ref={editorRef}
+            onContentChange={handleContentChange}
+            onScroll={handleEditorScroll}
+          />
         </div>
 
         {/* 预览区域 */}
