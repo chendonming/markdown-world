@@ -46,13 +46,15 @@ export class ScrollSyncMapper {
         const line = parseInt(lineAttr, 10)
         if (!isNaN(line)) {
           // 计算元素相对于容器顶部的偏移量
-          const offsetTop = this.getOffsetTop(element)
+          // 性能考量：在构建映射表时一次性调用 getBoundingClientRect，避免在滚动热路径中多次调用
+          const containerRect = this.previewContainer!.getBoundingClientRect()
+          const elemRect = element.getBoundingClientRect()
+          const offsetTop = Math.max(
+            0,
+            Math.round(elemRect.top - containerRect.top + this.previewContainer!.scrollTop)
+          )
 
-          this.mappings.push({
-            line,
-            element,
-            offsetTop
-          })
+          this.mappings.push({ line, element, offsetTop })
         }
       }
     })
@@ -63,25 +65,8 @@ export class ScrollSyncMapper {
     console.log(`构建映射表完成，共 ${this.mappings.length} 个映射项`)
   }
 
-  /**
-   * 计算元素相对于预览容器顶部的偏移量
-   * @param element - 目标元素
-   * @returns 偏移量（像素）
-   */
-  private getOffsetTop(element: HTMLElement): number {
-    if (!this.previewContainer) return 0
-
-    let offsetTop = 0
-    let currentElement: HTMLElement | null = element
-
-    // 累加所有父元素的 offsetTop，直到预览容器
-    while (currentElement && currentElement !== this.previewContainer) {
-      offsetTop += currentElement.offsetTop
-      currentElement = currentElement.offsetParent as HTMLElement
-    }
-
-    return offsetTop
-  }
+  // 注意：已在 buildMappingTable 中一次性计算所有元素的 offsetTop，避免在滚动热路径中重复布局查询。
+  // 如需单独计算某个元素的位置，可在外部直接使用 getBoundingClientRect，并结合容器的 getBoundingClientRect() 与 scrollTop。
 
   /**
    * 根据编辑器行号查找对应的映射项

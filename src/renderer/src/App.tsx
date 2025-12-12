@@ -178,7 +178,6 @@ function App(): React.JSX.Element {
             style={{
               width: '100%',
               height: '600px',
-              padding: '20px',
               backgroundColor: '#1e1e1e',
               color: '#d4d4d4',
               borderRadius: '4px',

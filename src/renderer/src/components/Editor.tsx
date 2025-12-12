@@ -73,9 +73,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(
         if (visibleRanges.length > 0) {
           // 获取可见区域的中间行号
           const startLine = visibleRanges[0].startLineNumber
-          const endLine = visibleRanges[0].endLineNumber
-          const middleLine = Math.floor((startLine + endLine) / 2)
-          onScroll?.(middleLine)
+          onScroll?.(startLine)
         }
       })
     }
