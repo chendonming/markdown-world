@@ -29,7 +29,7 @@ export interface EditorRef {
 
 const Editor = forwardRef<EditorRef, EditorProps>(
   ({ onContentChange, onCursorPositionChange, onScroll }, ref): React.JSX.Element => {
-    const [value, setValue] = useState('# Hello Monaco Editor\n\n开始输入您的内容...')
+    const [value, setValue] = useState('')
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
     // 暴露方法给父组件
