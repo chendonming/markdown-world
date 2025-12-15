@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Editor, { EditorRef } from './components/Editor'
 import { MarkdownWorkerManager } from './utils/markdownWorkerManager'
 import { ScrollSyncMapper } from './utils/scrollSyncMapper'
+import { ScrollSyncLock } from './utils/scrollSyncLock'
 
 function App(): React.JSX.Element {
   const [markdownContent, setMarkdownContent] = useState('')
@@ -11,15 +12,13 @@ function App(): React.JSX.Element {
   const scrollMapperRef = useRef<ScrollSyncMapper | null>(null)
   const previewContainerRef = useRef<HTMLDivElement | null>(null)
   const editorRef = useRef<EditorRef | null>(null)
+  const scrollSyncLockRef = useRef<ScrollSyncLock | null>(null)
 
-  // 标志位，防止循环滚动
-  const isEditorScrollingRef = useRef(false)
-  const isPreviewScrollingRef = useRef(false)
-
-  // 初始化 Worker Manager 和 ScrollSyncMapper
+  // 初始化 Worker Manager、ScrollSyncMapper 和 ScrollSyncLock
   useEffect(() => {
     workerManagerRef.current = new MarkdownWorkerManager()
     scrollMapperRef.current = new ScrollSyncMapper()
+    scrollSyncLockRef.current = new ScrollSyncLock()
 
     // 组件卸载时清理资源
     return () => {
@@ -28,6 +27,9 @@ function App(): React.JSX.Element {
       }
       if (scrollMapperRef.current) {
         scrollMapperRef.current.clear()
+      }
+      if (scrollSyncLockRef.current) {
+        scrollSyncLockRef.current.forceRelease()
       }
     }
   }, [])
@@ -70,33 +72,38 @@ function App(): React.JSX.Element {
     }
   }, [htmlPreview])
 
-  // 编辑器滚动时同步预览区域
+  // 编辑器滚动时同步预览区域（使用互斥锁机制）
   const handleEditorScroll = useCallback((visibleLine: number) => {
-    if (isPreviewScrollingRef.current || !scrollMapperRef.current || !previewContainerRef.current) {
+    if (!scrollSyncLockRef.current || !scrollMapperRef.current || !previewContainerRef.current) {
       return
     }
 
-    const mapping = scrollMapperRef.current.findMappingByLine(visibleLine)
-    if (mapping) {
-      isEditorScrollingRef.current = true
-
-      // 滚动预览区域到对应位置
-      previewContainerRef.current.scrollTo({
-        top: mapping.offsetTop,
-        behavior: 'smooth'
-      })
-
-      // 延迟清除标志位
-      setTimeout(() => {
-        isEditorScrollingRef.current = false
-      }, 150)
+    // 如果正在从预览同步到编辑器，则忽略编辑器的滚动事件，防止循环滚动
+    if (scrollSyncLockRef.current.isSyncingTo('editor')) {
+      return
     }
+
+    // 使用防抖 + 互斥锁机制
+    scrollSyncLockRef.current.debounce('editor', () => {
+      if (scrollSyncLockRef.current) {
+        // 标记正在同步到预览，防止预览的滚动事件触发反向同步
+        scrollSyncLockRef.current.markSyncingTo('preview')
+      }
+      const mapping = scrollMapperRef.current!.findMappingByLine(visibleLine)
+      if (mapping && previewContainerRef.current) {
+        // 滚动预览区域到对应位置
+        previewContainerRef.current.scrollTo({
+          top: mapping.offsetTop,
+          behavior: 'smooth'
+        })
+      }
+    })
   }, [])
 
-  // 预览区域滚动时同步编辑器
+  // 预览区域滚动时同步编辑器（使用互斥锁机制）
   const handlePreviewScroll = useCallback(() => {
     if (
-      isEditorScrollingRef.current ||
+      !scrollSyncLockRef.current ||
       !scrollMapperRef.current ||
       !previewContainerRef.current ||
       !editorRef.current
@@ -104,16 +111,23 @@ function App(): React.JSX.Element {
       return
     }
 
-    const scrollTop = previewContainerRef.current.scrollTop
-    const line = scrollMapperRef.current.findLineByScrollTop(scrollTop)
+    // 如果正在从编辑器同步到预览，则忽略预览的滚动事件，防止循环滚动
+    if (scrollSyncLockRef.current.isSyncingTo('preview')) {
+      return
+    }
 
-    isPreviewScrollingRef.current = true
-    editorRef.current.scrollToLine(line)
-
-    // 延迟清除标志位
-    setTimeout(() => {
-      isPreviewScrollingRef.current = false
-    }, 150)
+    // 使用防抖 + 互斥锁机制
+    scrollSyncLockRef.current.debounce('preview', () => {
+      if (scrollSyncLockRef.current) {
+        // 标记正在同步到编辑器，防止编辑器的滚动事件触发反向同步
+        scrollSyncLockRef.current.markSyncingTo('editor')
+      }
+      if (scrollMapperRef.current && previewContainerRef.current && editorRef.current) {
+        const scrollTop = previewContainerRef.current.scrollTop
+        const line = scrollMapperRef.current.findLineByScrollTop(scrollTop)
+        editorRef.current.scrollToLine(line)
+      }
+    })
   }, [])
 
   // 监听预览区域滚动事件
