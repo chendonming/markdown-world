@@ -1,5 +1,6 @@
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -58,6 +59,7 @@ self.addEventListener('message', async (event: MessageEvent<MarkdownMessage>) =>
     // 在 Worker 线程中执行 Markdown 解析
     const result = await unified()
       .use(remarkParse)
+      .use(remarkGfm)
       .use(remarkRehype)
       .use(rehypeAddLineNumbers) // 添加行号注入插件
       .use(rehypeSanitize, customSchema) // 使用自定义 schema 允许 data-line 属性
