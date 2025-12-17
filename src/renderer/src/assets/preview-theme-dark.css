@@ -1,0 +1,35 @@
+/* 预览区域暗色主题 */
+
+.preview-container.theme-dark {
+  /* 主色系 */
+  --preview-bg-primary: #1e1e1e;
+  --preview-bg-secondary: #252526;
+  --preview-bg-tertiary: #2d2d30;
+  --preview-text-primary: #d4d4d4;
+  --preview-text-secondary: #858585;
+  --preview-text-tertiary: #6a6a6a;
+
+  /* 代码块 */
+  --preview-code-bg: #1e1e1e;
+  --preview-code-text: #ce9178;
+  --preview-code-border: #3e3e42;
+
+  /* 链接 */
+  --preview-link-color: #569cd6;
+  --preview-link-hover: #9cdcfe;
+
+  /* 引用 */
+  --preview-blockquote-border: #007acc;
+  --preview-blockquote-bg: rgba(0, 122, 204, 0.1);
+  --preview-blockquote-text: #b4b4b4;
+
+  /* 表格 */
+  --preview-table-header-bg: #252526;
+  --preview-table-border: #3e3e42;
+
+  /* 列表 */
+  --preview-list-marker: #569cd6;
+
+  /* 分割线 */
+  --preview-hr-color: #3e3e42;
+}

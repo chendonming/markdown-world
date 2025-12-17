@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Editor, { EditorRef } from './components/Editor'
+import ThemeSwitcher from './components/ThemeSwitcher'
 import { MarkdownWorkerManager } from './utils/markdownWorkerManager'
 import { ScrollSyncMapper } from './utils/scrollSyncMapper'
 import { ScrollSyncLock } from './utils/scrollSyncLock'
@@ -171,6 +172,7 @@ function App(): React.JSX.Element {
         >
           {isLoading ? '解析中...' : '预览'}
         </button>
+        <ThemeSwitcher />
       </div>
 
       <div style={{ flex: 1, display: 'flex', gap: '20px', minHeight: 0 }}>
@@ -189,11 +191,10 @@ function App(): React.JSX.Element {
           <h3 style={{ marginTop: 0, marginBottom: '10px' }}>预览</h3>
           <div
             ref={previewContainerRef}
+            className="preview-container"
             style={{
               width: '100%',
               height: '600px',
-              backgroundColor: '#1e1e1e',
-              color: '#d4d4d4',
               borderRadius: '4px',
               overflowY: 'auto',
               boxSizing: 'border-box'

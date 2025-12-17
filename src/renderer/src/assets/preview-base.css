@@ -1,0 +1,274 @@
+/* 预览区域基础样式 - 使用 CSS 变量定义所有可配置属性 */
+
+.preview-container {
+  /* 主色系 */
+  --preview-bg-primary: #1e1e1e;
+  --preview-bg-secondary: #252526;
+  --preview-bg-tertiary: #2d2d30;
+  --preview-text-primary: #d4d4d4;
+  --preview-text-secondary: #858585;
+  --preview-text-tertiary: #6a6a6a;
+
+  /* 代码块 */
+  --preview-code-bg: #1e1e1e;
+  --preview-code-text: #ce9178;
+  --preview-code-border: #3e3e42;
+
+  /* 链接 */
+  --preview-link-color: #569cd6;
+  --preview-link-hover: #9cdcfe;
+
+  /* 引用 */
+  --preview-blockquote-border: #007acc;
+  --preview-blockquote-bg: rgba(0, 122, 204, 0.1);
+  --preview-blockquote-text: #b4b4b4;
+
+  /* 表格 */
+  --preview-table-header-bg: #252526;
+  --preview-table-border: #3e3e42;
+
+  /* 列表 */
+  --preview-list-marker: #569cd6;
+
+  /* 分割线 */
+  --preview-hr-color: #3e3e42;
+
+  /* 字体和间距 */
+  --preview-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --preview-code-font-family: 'Courier New', Courier, monospace;
+  --preview-line-height: 1.6;
+}
+
+.preview-container {
+  font-family: var(--preview-font-family);
+  color: var(--preview-text-primary);
+  background-color: var(--preview-bg-primary);
+  line-height: var(--preview-line-height);
+  padding: 16px;
+}
+
+/* 标题样式 */
+.preview-container h1,
+.preview-container h2,
+.preview-container h3,
+.preview-container h4,
+.preview-container h5,
+.preview-container h6 {
+  color: var(--preview-text-primary);
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.preview-container h1 {
+  font-size: 32px;
+  border-bottom: 2px solid var(--preview-hr-color);
+  padding-bottom: 8px;
+}
+
+.preview-container h2 {
+  font-size: 28px;
+  border-bottom: 1px solid var(--preview-hr-color);
+  padding-bottom: 8px;
+}
+
+.preview-container h3 {
+  font-size: 24px;
+}
+
+.preview-container h4 {
+  font-size: 20px;
+}
+
+.preview-container h5 {
+  font-size: 16px;
+}
+
+.preview-container h6 {
+  font-size: 14px;
+  color: var(--preview-text-secondary);
+}
+
+/* 段落 */
+.preview-container p {
+  margin: 0 0 16px 0;
+  line-height: var(--preview-line-height);
+}
+
+/* 行内代码 */
+.preview-container code {
+  background-color: var(--preview-code-bg);
+  color: var(--preview-code-text);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--preview-code-font-family);
+  font-size: 0.9em;
+  border: 1px solid var(--preview-code-border);
+}
+
+/* 代码块 */
+.preview-container pre {
+  background-color: var(--preview-code-bg);
+  border: 1px solid var(--preview-code-border);
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.preview-container pre code {
+  background-color: transparent;
+  color: var(--preview-text-primary);
+  padding: 0;
+  border: none;
+  font-size: 0.9em;
+}
+
+/* 链接 */
+.preview-container a {
+  color: var(--preview-link-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.preview-container a:hover {
+  color: var(--preview-link-hover);
+  border-bottom-color: var(--preview-link-hover);
+}
+
+/* 列表 */
+.preview-container ul,
+.preview-container ol {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.preview-container li {
+  margin: 4px 0;
+  line-height: var(--preview-line-height);
+}
+
+.preview-container ul > li::marker {
+  color: var(--preview-list-marker);
+}
+
+.preview-container ol > li::marker {
+  color: var(--preview-list-marker);
+}
+
+/* 嵌套列表 */
+.preview-container ul ul,
+.preview-container ol ol,
+.preview-container ul ol,
+.preview-container ol ul {
+  margin: 4px 0;
+}
+
+/* 引用 */
+.preview-container blockquote {
+  border-left: 4px solid var(--preview-blockquote-border);
+  background-color: var(--preview-blockquote-bg);
+  padding: 12px 16px;
+  margin: 16px 0;
+  color: var(--preview-blockquote-text);
+  border-radius: 0 4px 4px 0;
+}
+
+.preview-container blockquote p {
+  margin: 0;
+  line-height: var(--preview-line-height);
+}
+
+/* 分割线 */
+.preview-container hr {
+  border: none;
+  height: 1px;
+  background-color: var(--preview-hr-color);
+  margin: 24px 0;
+}
+
+/* 表格 */
+.preview-container table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  border: 1px solid var(--preview-table-border);
+}
+
+.preview-container table th {
+  background-color: var(--preview-table-header-bg);
+  color: var(--preview-text-primary);
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid var(--preview-table-border);
+}
+
+.preview-container table td {
+  padding: 12px;
+  border: 1px solid var(--preview-table-border);
+  color: var(--preview-text-primary);
+}
+
+.preview-container table tr:nth-child(even) {
+  background-color: var(--preview-bg-secondary);
+}
+
+.preview-container table tr:hover {
+  background-color: var(--preview-bg-tertiary);
+}
+
+/* 图片 */
+.preview-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 16px 0;
+  display: block;
+}
+
+/* 行内图片 */
+.preview-container p img {
+  margin: 0;
+  display: inline-block;
+}
+
+/* 强调 */
+.preview-container strong,
+.preview-container b {
+  font-weight: 600;
+  color: var(--preview-text-primary);
+}
+
+.preview-container em,
+.preview-container i {
+  font-style: italic;
+}
+
+/* 删除线 */
+.preview-container del,
+.preview-container s {
+  text-decoration: line-through;
+  color: var(--preview-text-secondary);
+}
+
+/* 滚动条美化 */
+.preview-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.preview-container::-webkit-scrollbar-track {
+  background-color: var(--preview-bg-primary);
+}
+
+.preview-container::-webkit-scrollbar-thumb {
+  background-color: var(--preview-text-tertiary);
+  border-radius: 4px;
+}
+
+.preview-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--preview-text-secondary);
+}
