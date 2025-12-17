@@ -64,10 +64,6 @@ function App(): React.JSX.Element {
         if (scrollMapperRef.current && previewContainerRef.current) {
           scrollMapperRef.current.setPreviewContainer(previewContainerRef.current)
           scrollMapperRef.current.buildMappingTable()
-
-          // 调试：打印映射表信息
-          const mappings = scrollMapperRef.current.getMappings()
-          console.log('映射表已构建:', mappings)
         }
       }, 0)
     }
